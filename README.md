@@ -1,16 +1,18 @@
-# 🎛️ RP2040 Custom Development Board
+# 🔋 TP4056 USB-C Li-ion Battery Charging Module
 
 <div align="center">
 
 ![PCB Version](https://img.shields.io/badge/PCB-v1.0-blue?style=for-the-badge)
-![MCU](https://img.shields.io/badge/MCU-RP2040-red?style=for-the-badge&logo=raspberrypi&logoColor=white)
-![EDA](https://img.shields.io/badge/EDA-EasyEDA-green?style=for-the-badge)
+![IC](https://img.shields.io/badge/IC-TP4056-orange?style=for-the-badge)
+![Protection](https://img.shields.io/badge/Protection-DW01%20%2B%20FS8205A-green?style=for-the-badge)
+![Connector](https://img.shields.io/badge/Input-USB--C-black?style=for-the-badge)
+![EDA](https://img.shields.io/badge/EDA-EasyEDA-teal?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Complete-brightgreen?style=for-the-badge)
 
 <br/>
 
-> **A fully custom-designed Raspberry Pi RP2040 development board** — built from scratch with onboard flash, USB-C, SWD debug header, and a full GPIO breakout. Designed to be compact, breadboard-friendly, and maker-ready.
+> **A compact, fully custom-designed TP4056-based Li-ion battery charger module** with USB-C input, onboard DW01 + FS8205A battery protection, charging/standby status LEDs, and a clean 2×4 output header — designed from scratch in EasyEDA.
 
 </div>
 
@@ -22,20 +24,20 @@
 
 <table>
   <tr>
-    <td align="center"><b>🗺️ PCB Layout</b></td>
     <td align="center"><b>🔭 3D Top View</b></td>
-  </tr>
-  <tr>
-    <td><img src="PCB_Layout.JPG" alt="PCB Layout" width="420"/></td>
-    <td><img src="3D_Top_View.JPG" alt="3D Top View" width="420"/></td>
-  </tr>
-  <tr>
     <td align="center"><b>📐 3D Perspective</b></td>
-    <td align="center"><b>📦 Enclosure View</b></td>
   </tr>
   <tr>
-    <td><img src="3D_Perspective.JPG" alt="3D Perspective" width="420"/></td>
-    <td><img src="Enclosure_View.JPG" alt="Enclosure View" width="420"/></td>
+    <td><img src="3D_Top_view.JPG" alt="3D Top View" width="420"/></td>
+    <td><img src="3D_view.JPG" alt="3D Perspective" width="420"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>🔽 Bottom View</b></td>
+    <td align="center"><b>📦 Shell View</b></td>
+  </tr>
+  <tr>
+    <td><img src="Bottom_view.JPG" alt="Bottom View" width="420"/></td>
+    <td><img src="shell_view.JPG" alt="Shell View" width="420"/></td>
   </tr>
 </table>
 
@@ -47,14 +49,17 @@
 
 - [Overview](#-overview)
 - [Features](#-features)
+- [Circuit Description](#-circuit-description)
 - [Hardware Specifications](#-hardware-specifications)
-- [Pin Mapping](#-pin-mapping)
-- [Schematic & PCB](#-schematic--pcb)
+- [Pin Header (H1) Pinout](#-pin-header-h1-pinout)
+- [Schematic](#-schematic)
 - [Bill of Materials (BOM)](#-bill-of-materials-bom)
+- [Charging Indicator LEDs](#-charging-indicator-leds)
+- [Charge Current Setting](#-charge-current-setting)
 - [Getting Started](#-getting-started)
-- [Programming the Board](#-programming-the-board)
 - [Project Files](#-project-files)
 - [3D Model & Enclosure](#-3d-model--enclosure)
+- [Safety Notes](#%EF%B8%8F-safety-notes)
 - [Contributing](#-contributing)
 - [Author](#-author)
 - [License](#-license)
@@ -63,260 +68,274 @@
 
 ## 🔍 Overview
 
-This project is a **custom-designed development board** centered around the **Raspberry Pi RP2040** dual-core ARM Cortex-M0+ microcontroller. It was designed entirely from scratch — from schematic to PCB layout — using **EasyEDA**, with a focus on:
+This module is a **single-cell Li-ion / Li-Po battery charger** built around the **TP4056** constant-current/constant-voltage (CC/CV) charger IC. It accepts power via a **USB-C connector**, charges the battery with full protection, and exposes battery and power rails through a **2×4 pin header (H1)**.
 
-- Clean power delivery with proper decoupling
-- Full GPIO breakout with double-row headers
-- USB-C for power and programming
-- Onboard SWD debug interface
-- Compact, professional form factor with optional 3D-printed enclosure
+The design integrates:
+- **TP4056** — handles CC/CV charging with thermal regulation
+- **DW01** — provides over-charge, over-discharge, and short-circuit protection
+- **FS8205A** — dual N-channel MOSFET switch controlled by DW01 for load/charge path isolation
+- **Status LEDs** — real-time visual feedback for charging and standby states
 
 ---
 
 ## ✨ Features
 
-- ⚡ **RP2040** — Dual-core ARM Cortex-M0+ @ up to 133 MHz
-- 🔌 **USB-C Connector** — For power input and UF2 firmware flashing
-- 💾 **Onboard Flash** — SOIC-8 NOR Flash (W25Q16 or compatible) for program storage
-- 🔋 **3.3V LDO Regulator** — Clean, stable 3.3V rail (SOT-23-4P package)
-- 🧩 **Full GPIO Breakout** — All 29 GPIOs exposed via dual-row 2.54mm pin headers
-- 🛠️ **SWD Debug Header** — 3-pin SWD (SWCLK, SWDIO, GND) for OpenOCD / Picoprobe
-- 🔄 **BOOTSEL & RUN Buttons** — For easy firmware flashing and reset
-- 🌀 **Crystal Oscillator** — Onboard 12 MHz crystal for accurate USB & clock timing
-- 📐 **3D-Printable Enclosure** — Matching shell designed in 3D (STEP file included)
-- 🏷️ **Silkscreen Labels** — Clear GPIO numbering and power rail markings
+- 🔌 **USB-C Input** — Modern connector, no polarity issues
+- ⚡ **TP4056 CC/CV Charger** — 4.2V charge voltage, programmable charge current
+- 🛡️ **Full Battery Protection** via DW01 + FS8205A:
+  - Over-charge protection
+  - Over-discharge protection
+  - Over-current / short-circuit protection
+- 💡 **Dual Status LEDs**:
+  - 🔴 `LED1 (CHRG)` — Charging in progress
+  - 🟢 `LED2 (STDBY)` — Charge complete / Standby
+- 🧩 **2×4 Pin Header (H1)** — Exposes BAT+, BAT−, VCC, GND for easy integration
+- 📐 **Compact Form Factor** — Designed for embedding in projects
+- 📦 **Optional 3D-Printed Enclosure** — Shell included
+
+---
+
+## 🔬 Circuit Description
+
+### Power Path
+
+```
+USB-C (U1)
+  └─ VBUS ──► R1 (150Ω) ──► VCC rail
+                              │
+                         TP4056 (U2)
+                              │
+                         BAT pin ──► DW01 (U3)
+                                          │
+                                     FS8205A (Q1)
+                                          │
+                                    Battery Output (H1)
+```
+
+### Key ICs
+
+| IC | Role |
+|----|------|
+| **U1** — USB-C Female | 5V power input (VBUS lines A9+B9, GND A12+B12) |
+| **U2** — TP4056 | CC/CV Li-ion charger, 4.2V termination |
+| **U3** — DW01 | Battery protection controller |
+| **Q1** — FS8205A | Dual MOSFET for protection switching |
+
+### TP4056 Pin Functions (U2)
+
+| Pin | Name | Function |
+|-----|------|----------|
+| 1 | TEMP | Temperature monitoring (tied to VCC via R — disabled) |
+| 2 | PROG | Charge current set resistor |
+| 3 | GND | Ground |
+| 4 | VCC | 5V input supply |
+| 5 | BAT | Battery positive terminal |
+| 6 | STDBY | Standby LED indicator (active low) |
+| 7 | CHRG | Charging LED indicator (active low) |
+| 8 | CE | Chip enable (active high, tied to VCC) |
 
 ---
 
 ## 🔧 Hardware Specifications
 
 | Parameter | Value |
-|---|---|
-| Microcontroller | Raspberry Pi RP2040 |
-| CPU | Dual-core ARM Cortex-M0+ |
-| Clock Speed | Up to 133 MHz |
-| SRAM | 264 KB |
-| Flash | External SPI NOR Flash (SOIC-8) |
-| Supply Voltage | 5V via USB-C |
-| I/O Voltage | 3.3V |
-| GPIO Count | 29 (all broken out) |
-| USB | USB 1.1 Full-speed (via USB-C) |
-| Debug Interface | SWD (3-pin header) |
-| Crystal | 12 MHz |
+|-----------|-------|
+| Input Connector | USB-C (Type-C Female) |
+| Input Voltage | 5V (from USB) |
+| Charge Voltage | 4.2V (fixed, TP4056) |
+| Charge Current | ~1A (set by PROG resistor) |
+| Battery Type | Single-cell Li-ion / Li-Po |
+| Protection IC | DW01 |
+| MOSFET | FS8205A (Dual N-Channel) |
+| Output Header | 2.54mm 2×4 Pin (H1) |
+| Status Indicators | 2× LEDs (CHRG + STDBY) |
 | PCB Layers | 2-Layer |
-| PCB Dimensions | ~56mm × 42mm (approx.) |
-| PCB Color | Blue |
-| Header Pitch | 2.54mm |
+| EDA Tool | EasyEDA (LCEDA) |
+| Schematic Version | V1.0 |
+| Created | 2026-04-02 |
+| Updated | 2026-04-09 |
 
 ---
 
-## 📌 Pin Mapping
+## 📌 Pin Header (H1) Pinout
 
-### Top Header (H4) — GPIOs 16–28 + GND
+**H1 — HDR2.54-LI-2×4P** (2.54mm pitch, 2×4 = 8 pins)
 
-| Pin | Function |
-|-----|----------|
-| GND | Ground |
-| 16  | GPIO16 |
-| 17  | GPIO17 |
-| 18  | GPIO18 |
-| 19  | GPIO19 |
-| 20  | GPIO20 |
-| 21  | GPIO21 |
-| 22  | GPIO22 |
-| 23  | GPIO23 |
-| 24  | GPIO24 |
-| 25  | GPIO25 |
-| 26  | GPIO26 (ADC0) |
-| 27  | GPIO27 (ADC1) |
-| 28  | GPIO28 (ADC2) |
+| Pin | Label | Description |
+|-----|-------|-------------|
+| 1 | VCC | 5V input from USB-C |
+| 2 | GND | Ground |
+| 3 | BAT+ | Battery positive (protected output) |
+| 4 | BAT− | Battery negative / GND |
+| 5 | CHRG | Charging status (active LOW, connect LED or logic) |
+| 6 | STDBY | Standby/Full status (active LOW) |
+| 7 | GND | Ground |
+| 8 | VCC | 5V input (mirrored) |
 
-### Bottom Header (H2) — GPIOs 0–15 + 3.3V + GND
-
-| Pin | Function |
-|-----|----------|
-| 3.3V | Power Output |
-| 0   | GPIO0 (UART0 TX / I2C0 SDA) |
-| 1   | GPIO1 (UART0 RX / I2C0 SCL) |
-| 2   | GPIO2 (SPI0 SCK / I2C1 SDA) |
-| 3   | GPIO3 (SPI0 TX / I2C1 SCL) |
-| 4   | GPIO4 (SPI0 RX) |
-| 5   | GPIO5 (SPI0 CS) |
-| 6   | GPIO6 |
-| 7   | GPIO7 |
-| 8   | GPIO8 |
-| 9   | GPIO9 |
-| 10  | GPIO10 |
-| 11  | GPIO11 |
-| 12  | GPIO12 |
-| 13  | GPIO13 |
-| 14  | GPIO14 |
-| 15  | GPIO15 |
-| GND | Ground |
-
-### Debug Header (H5 / H6)
-
-| Pin | Function |
-|-----|----------|
-| SWCLK | Serial Wire Clock |
-| SWDIO | Serial Wire Data |
-| GND  | Ground |
-| RUN  | Reset (active low) |
+> ⚠️ Refer to the schematic `schematic.pdf` for the exact net assignments.
 
 ---
 
-## 📁 Schematic & PCB
+## 📄 Schematic
 
-The board was designed using **EasyEDA** (LCEDA). Design files are included in the repository:
+The full schematic is included as `schematic.pdf`.
+
+**Key nets at a glance:**
 
 ```
-├── Gerber_PCB1_RP2040/       # Gerber files for PCB fabrication
-│   ├── Gerber_TopLayer.gbr
-│   ├── Gerber_BottomLayer.gbr
-│   ├── Gerber_BoardOutline.gbr
-│   ├── Gerber_TopSilkLayer.gbr
-│   └── ...
-├── PickAndPlace_PCB1_        # Pick and place file for SMT assembly
-├── BOM_RP2040_Dev_Board_PCB1 # Bill of Materials (Excel)
-└── 3D_step_file.step         # 3D STEP model of the board
+VBUS  ──► R1(150Ω) ──► VCC
+VCC   ──► TP4056 VCC (pin 4)
+           TP4056 CE (pin 8) — always enabled
+           TP4056 TEMP (pin 1) via R
+
+TP4056 PROG (pin 2) ──► R4/R5 (150Ω) ──► GND
+           (Sets ~1A charge current: IPROG = 1200 / RPROG)
+
+TP4056 BAT (pin 5) ──► DW01 (U3) ──► FS8205A (Q1) ──► BAT output
+
+CHRG (pin 7) ──► R2(1kΩ) ──► LED1 ──► GND
+STDBY (pin 6) ──► R3(1kΩ) ──► LED2 ──► GND
 ```
-
-### 📦 Ordering PCBs
-
-Upload the `Gerber_PCB1_RP2040.zip` to any PCB manufacturer:
-- [JLCPCB](https://jlcpcb.com) *(recommended)*
-- [PCBWay](https://pcbway.com)
-- [OSH Park](https://oshpark.com)
-
-**Recommended fabrication settings:**
-| Setting | Value |
-|---------|-------|
-| Layers | 2 |
-| Thickness | 1.6mm |
-| Surface Finish | HASL (LeadFree) |
-| Copper Weight | 1 oz |
-| Color | Blue |
 
 ---
 
 ## 🧾 Bill of Materials (BOM)
 
-> Full BOM is in `BOM_RP2040_Dev_Board_PCB1.xlsx`
+> Full BOM: `BOM_Board1_TP4050_2026-04-09.xlsx`
 
-| Ref | Component | Package | Value / Part No. |
-|-----|-----------|---------|-----------------|
-| U2  | RP2040 | QFN-56 | Raspberry Pi RP2040 |
-| U3  | USB-C Connector | SMD | USB Type-C Receptacle |
-| U4  | LDO Regulator | SOT-23-4P | e.g. ME6206 / XC6206 3.3V |
-| U5  | Flash Memory | SOIC-8 | W25Q16JVSSIQ (2MB) |
-| U6  | Crystal | SMD | 12 MHz Crystal |
-| H1  | Header 1×2 | 2.54mm THT | Power/GND Breakout |
-| H2  | Header 2×20 | 2.54mm THT | Bottom GPIO |
-| H4  | Header 2×(n) | 2.54mm THT | Top GPIO |
-| H5/H6 | Header 1×4 | 2.54mm THT | SWD Debug |
-| C1–C16 | Decoupling Caps | 0402/0603 | 100nF / 10µF |
-| R1–R7 | Resistors | 0402 | Various (1kΩ, 27Ω, etc.) |
+| Ref | Component | Package | Value / Part |
+|-----|-----------|---------|--------------|
+| U1 | USB-C Female Connector | SMD | Type-C Receptacle (tpyec) |
+| U2 | Li-ion Charger IC | SOP-8 | TP4056 |
+| U3 | Battery Protection IC | SOT-23-6 | DW01 |
+| Q1 | Dual N-Ch MOSFET | SOT-23-8 | FS8205A |
+| LED1 | Charging Indicator | 0402 LED | Red |
+| LED2 | Standby Indicator | 0402 LED | Green |
+| R1 | Input Resistor | 0402 | 150Ω |
+| R2 | LED Resistor | 0402 | 1kΩ |
+| R3 | LED Resistor | 0402 | 1kΩ |
+| R4 | PROG Resistor | 0402 | 150Ω |
+| R5 | PROG Resistor | 0402 | 150Ω |
+| R6 | Zero-ohm jumper | 0402 | 0Ω |
+| C1–C6 | Decoupling Caps | 0402 | 220pF |
+| H1 | Output Header | 2.54mm THT | 2×4P HDR |
+
+---
+
+## 💡 Charging Indicator LEDs
+
+| LED | Color | State | Meaning |
+|-----|-------|-------|---------|
+| LED1 (CHRG) | 🔴 Red | **ON** | Battery charging in progress |
+| LED1 (CHRG) | 🔴 Red | **OFF** | Charging complete or no battery |
+| LED2 (STDBY) | 🟢 Green | **ON** | Charge complete — battery full |
+| LED2 (STDBY) | 🟢 Green | **OFF** | Charging or no input power |
+
+> Both LEDs ON simultaneously briefly during startup is normal.
+
+---
+
+## ⚙️ Charge Current Setting
+
+The charge current is set by the **PROG resistor** (R4/R5):
+
+```
+I_charge (mA) = 1200 / R_PROG (kΩ)
+```
+
+| RPROG | Charge Current |
+|-------|---------------|
+| 1.2kΩ | ~1000 mA (1A) |
+| 2kΩ   | ~600 mA |
+| 3kΩ   | ~400 mA |
+| 10kΩ  | ~120 mA |
+
+> This design uses R4 + R5 = **150Ω** in the PROG path. Verify against your schematic and adjust for your battery's recommended charge rate (typically **0.5C** to **1C**).
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
+### Assembly Order
 
-- Soldering iron + solder
-- PCB (ordered from Gerber files)
-- All BOM components
-- USB-C cable
-- PC with [Raspberry Pi Pico SDK](https://github.com/raspberrypi/pico-sdk) or [MicroPython](https://micropython.org/download/rp2-pico/)
+1. **Solder SMD components first**: U2 (TP4056), U3 (DW01), Q1 (FS8205A), then all 0402 passives (R, C, LEDs)
+2. **Solder USB-C connector** (U1) — use flux generously
+3. **Solder 2×4 pin header** (H1) last
+4. **Inspect** all joints, especially USB-C pads
 
-### Assembly Steps
+### Testing
 
-1. **Solder SMD components first** — Start with ICs (U2 RP2040, U4, U5), then passives (capacitors, resistors)
-2. **Solder the crystal** (U6) and USB-C connector (U3)
-3. **Solder through-hole headers** last (H2, H4, H1, H5, H6)
-4. **Inspect** all joints under magnification
-5. **Power up** via USB-C and check 3.3V rail before connecting peripherals
+1. Connect USB-C — both LEDs may flash briefly
+2. **Without battery**: STDBY LED should turn on (no load)
+3. **With battery connected to H1 (BAT+/BAT−)**:
+   - `LED1 (RED)` ON → Charging
+   - `LED2 (GREEN)` ON → Battery full
+4. Measure BAT pin voltage — should ramp to **4.2V**
 
----
+### PCB Fabrication
 
-## 💻 Programming the Board
+Upload `Gerber_PCB1_2026-04-09.zip` to your preferred fab:
 
-### Method 1: UF2 Drag-and-Drop (Easiest)
-
-1. Hold **BOOTSEL** button and plug in USB-C
-2. The board appears as a mass storage device (`RPI-RP2`)
-3. Drag and drop your `.uf2` firmware file
-4. The board resets and runs your firmware
-
-### Method 2: MicroPython
-
-1. Download [MicroPython UF2 for RP2040](https://micropython.org/download/rp2-pico/)
-2. Flash via UF2 method above
-3. Use Thonny IDE or any serial terminal to interact
-
-### Method 3: C/C++ SDK
-
-```bash
-# Install Pico SDK
-git clone https://github.com/raspberrypi/pico-sdk
-cd pico-sdk && git submodule update --init
-
-# Build a project
-mkdir build && cd build
-cmake -DPICO_SDK_PATH=../../pico-sdk ..
-make -j4
-```
-
-### Method 4: SWD Debug (OpenOCD)
-
-Connect a Picoprobe or J-Link to the SWD header (H5/H6):
-
-```bash
-openocd -f interface/picoprobe.cfg -f target/rp2040.cfg
-```
+| Setting | Value |
+|---------|-------|
+| Layers | 2 |
+| Board Thickness | 1.6mm |
+| Surface Finish | HASL (Lead-free) |
+| Min Hole Size | 0.3mm |
+| Copper Weight | 1 oz |
 
 ---
 
 ## 📂 Project Files
 
 ```
-RP2040-Dev-Board/
+TP4056-USB-C-Charger-Module/
 │
-├── 📁 Gerber_PCB1_RP2040/          # Gerber files for fabrication
-├── 📄 BOM_RP2040_Dev_Board_PCB1.xlsx  # Bill of Materials
-├── 📄 PickAndPlace_PCB1_.csv        # Pick & Place file for SMT
-├── 📄 3D_step_file.step             # 3D STEP model
-├── 📁 3DShell_PCB1/                 # 3D printable enclosure files
-├── 🖼️  FW.JPG                        # PCB layout render
-├── 🖼️  SW.JPG                        # 3D perspective render
-├── 🖼️  TW.JPG                        # 3D top view render
-├── 🖼️  SSV.JPG                       # Enclosure 3D view
-└── 📄 README.md                     # This file
+├── 📄 schematic.pdf                     # Full circuit schematic (EasyEDA)
+├── 📁 Gerber_PCB1_2026-04-09/           # Gerber files for PCB fab
+├── 📄 BOM_Board1_TP4050_2026-04-09.xlsx # Bill of Materials
+├── 📄 3D_step_file.step                 # 3D STEP model (if available)
+├── 📁 3DShell_PCB1/                     # 3D-printable enclosure files
+├── 🖼️  3D_Top_view.JPG                  # 3D top render
+├── 🖼️  3D_view.JPG                      # 3D perspective render
+├── 🖼️  Bottom_view.JPG                  # PCB bottom render
+├── 🖼️  shell_view.JPG                   # Enclosure render
+└── 📄 README.md                         # This file
 ```
 
 ---
 
 ## 🏠 3D Model & Enclosure
 
-A matching **3D-printed enclosure** was designed for this board. The shell exposes:
-- USB-C port on the left side
-- SWD/RUN header on the right side
-- All GPIO pins through the top
+A custom **3D-printable enclosure** (shell) was designed to fit this module.
 
-**Files:** `3DShell_PCB1/` and `3D_step_file.step`
+- Files located in `3DShell_PCB1/`
+- Print in **PLA or PETG**, 0.2mm layer height, 20% infill
+- Exposes USB-C port and pin header H1
 
-Print with **PLA or PETG**, 0.2mm layer height, 20% infill recommended.
+---
+
+## ⚠️ Safety Notes
+
+> Please read before connecting a battery!
+
+- ✅ Only use with **single-cell (3.7V nominal) Li-ion or Li-Po** batteries
+- ✅ Always check battery polarity before connecting to H1
+- ✅ The DW01 + FS8205A provides protection, but **never leave charging unattended for extended periods**
+- ❌ Do not connect batteries above **4.2V** or below **2.5V** to this module
+- ❌ Do not short the BAT output pins
+- ❌ Do not supply more than **5.5V** to the USB-C input
 
 ---
 
 ## 🤝 Contributing
 
-Contributions, issues and feature requests are welcome!
+Contributions, issues, and suggestions are welcome!
 
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/my-improvement`
-3. Commit your changes: `git commit -m 'Add some improvement'`
-4. Push to the branch: `git push origin feature/my-improvement`
+1. Fork the repo
+2. Create your branch: `git checkout -b feature/improvement`
+3. Commit: `git commit -m 'Add improvement'`
+4. Push: `git push origin feature/improvement`
 5. Open a Pull Request
 
 ---
@@ -342,7 +361,7 @@ Akurdi, Pune
 
 <div align="center">
 
-**⭐ If this project helped you, please consider giving it a star! ⭐**
+**⭐ Found this useful? Give it a star! ⭐**
 
 Made with ❤️ in Pune, India 🇮🇳
 
